@@ -5,7 +5,6 @@ def add_time(start_time, duration, day=None):
 
     start_time = start_time.replace(':', ' ').split()
     duration = duration.split(':')
-    tz = start_time[2]
 
     def HowLongFor(st0, st1, st2):
         if st2 == 'PM':
@@ -25,43 +24,45 @@ def add_time(start_time, duration, day=None):
         minut = hourdif*60 + mindif
         return minut
 
-    def Toggle(t):
-        if t == 'AM': 
-            t = 'PM'  
-        else: 
-            t = 'AM'
-        return t
+    def ToggleTZ(t, MinutesLeft, MinutesToComp):
+        n = 0
+        if MinutesToComp < MinutesLeft:
+            return t
+        elif MinutesToComp >= MinutesLeft:
+            RealMinutes = MinutesToComp - MinutesLeft
+            NumOfTog = RealMinutes//720
+            if NumOfTog > 1:
+                n += NumOfTog
+            for _ in range(n+1):
+                if t == 'AM': t = 'PM'
+                else: t = 'AM'
+            return t
 
-    howlong = HowLongFor(start_time[0], start_time[1], start_time[2])
-    # print(howlong)
 
-    startminutes = int(start_time[0])*60+int(start_time[1])
-    durationminutes = int(duration[0])*60+int(duration[1])
-    minutes = startminutes+durationminutes
-    stop_hour = (minutes-(minutes%60))//60
-    for i in range(stop_hour//12):
-        if stop_hour > 12:
-            stop_hour -= 12
-    
-    if durationminutes > howlong:
-        daydiff = (durationminutes - howlong) // 720
-        if daydiff < 2:
-            whichday = '(Next day)'
+    def ChangeDay(MinutesToComp, MinutesLeft):
+        if MinutesToComp >= MinutesLeft:
+            if (MinutesToComp-MinutesLeft) // 1440 < 1:
+                return 'next day'
+            if MinutesToComp // 1440 >= 1:
+                for _ in range(MinutesToComp // 1440):
+                    return f'{MinutesToComp // 1440+1} days later'
         else:
-            whichday = f'({int(daydiff)} days later)'
-    else:
-        daydiff = 0
-        whichday = '(same day)'
+            return 'same day'
 
-    tzdiff = (durationminutes - howlong) / 360
-    if durationminutes < howlong:
-        tz = tz
-    elif tzdiff < 1:
-        tz = Toggle(tz)
-    else:
-        for _ in range(int(tzdiff)):
-            tz = Toggle(tz)
-
+    def Hour(Min, Smin):
+        M = Min+Smin
+        h = (M-(M%60))//60
+        if h > 12:
+            for x in range(h//12):
+                h -= 12
+        return h
+    
+    howlong = HowLongFor(start_time[0], start_time[1], start_time[2])
+    startminutes = int(start_time[0])*60+int(start_time[1])
+    minutes = int(duration[0])*60+int(duration[1])
+    stop_hour = Hour(minutes, startminutes)
+    whichday = ChangeDay(minutes, howlong)
+    tz = ToggleTZ(start_time[2], howlong, minutes)
 
     stop_string = f'{stop_hour}:{minutes%60:02d} {tz} {whichday}'
     print(stop_string)
