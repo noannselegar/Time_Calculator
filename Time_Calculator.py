@@ -34,12 +34,29 @@ def add_time(start_time, duration, day=None):
     def ChangeDay(MinutesToComp, MinutesLeft):
         if MinutesToComp >= MinutesLeft:
             if (MinutesToComp-MinutesLeft) // 1440 < 1:
-                return 'next day'
+                return 'of the next day'
             if MinutesToComp // 1440 >= 1:
                 for _ in range(MinutesToComp // 1440):
-                    return f'{MinutesToComp // 1440+1} days later'
+                    return f'({MinutesToComp // 1440+1} days later)'
         else:
-            return 'same day'
+            return 'of the same day'
+        
+    def WeekDay(firstDay, MinutesToComp, MinutesLeft):
+        ind = days.index(firstDay)
+        D = firstDay
+        MSubDay = MinutesToComp // 1440
+        if MinutesToComp >= MinutesLeft:
+            if (MinutesToComp-MinutesLeft) // 1440 < 1:
+                if ind == 7: ind = -1
+                return days[ind+1]
+            if MSubDay >= 1:
+                for _ in range(MSubDay+1):
+                    ind = ind+1
+                    if ind >= 7: 
+                        ind = -1    
+                return days[ind]
+        else:
+            return D
 
     def Hour(Min, Smin, t):
         M = Min+Smin
@@ -56,9 +73,10 @@ def add_time(start_time, duration, day=None):
     startminutes = int(start_time[0])*60+int(start_time[1])
     minutes = int(duration[0])*60+int(duration[1])
     stop_hour, tz = Hour(minutes, startminutes, start_time[2])
-    whichday = ChangeDay(minutes, howlong)
+    if day == None or day == '':
+        whichday = ChangeDay(minutes, howlong)
+    else:
+        whichday = f'on {WeekDay(day, minutes, howlong)}'
 
-    stop_string = f'{stop_hour}:{(startminutes+minutes)%60:02d} {tz} {whichday}'
-    print(stop_string)
-    print(howlong, minutes)
+    print(f'Check-out was at {stop_hour}:{(startminutes+minutes)%60:02d} {tz} {whichday}')
             

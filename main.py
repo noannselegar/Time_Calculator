@@ -1,3 +1,7 @@
 from Time_Calculator import add_time
 
-add_time('3:01 AM', '35:00')
+start = input('Check-in time: ')
+duration = input('Duration of the stay: ')
+day = input('Weekday for check-in (optional): ')
+
+add_time(start, duration, day)
