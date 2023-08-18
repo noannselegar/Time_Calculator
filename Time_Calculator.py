@@ -47,7 +47,7 @@ def add_time(start_time, duration, day=None):
         MSubDay = MinutesToComp // 1440
         if MinutesToComp >= MinutesLeft:
             if (MinutesToComp-MinutesLeft) // 1440 < 1:
-                if ind == 7: ind = -1
+                if ind >= 7: ind = -1
                 return days[ind+1]
             if MSubDay >= 1:
                 for _ in range(MSubDay+1):
